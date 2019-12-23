@@ -14,7 +14,7 @@ $ python3 ./export-data.py > `date +%Y-%-m`.json
 
 * Edit `month-in-review.php` and set the path to the JSON files.  You can also set the category for the posts.
 
-* Copy `month-in-review.php` and `style.css` into `wp-content/plugins/month-in-review`
+* Copy `month-in-review.php`, `foursquare-categories.json`, and `style.css` into `wp-content/plugins/month-in-review`
 
 * Activate the plugin in WordPress
 

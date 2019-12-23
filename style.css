@@ -48,3 +48,22 @@
   margin-right: 6px;
   height: 2.5em !important;
 }
+
+.c99mir_foursquare_table {
+  clear: both;
+  width: 33%;
+}
+
+.c99mir_foursquare_category {
+  float: left;
+  padding: 6px;
+  margin-right: 12px;
+  margin-bottom: 6px;
+  width: 240px;
+  line-height: normal !important;
+}
+
+.c99mir_foursquare_category img {
+  margin-right: 6px;
+  float: left;
+}

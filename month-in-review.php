@@ -38,7 +38,7 @@ function c99mir_delta($v1, $v2, $units="", $invertColors=false) {
     else
       $span_class = "neutral";
 
-    return "<span class='c99mir_delta_" . $span_class . "'>" . ($delta > 0 ? '+' : '') . number_format($delta) . $units . "</span> ";
+    return "<span class='c99mir_delta_" . $span_class . "'>" . ($delta >= 0 ? '+' : '') . number_format($delta) . $units . "</span> ";
 }
 
 function c99mir_productive_time($data) {
@@ -63,10 +63,23 @@ function c99mir_seconds_to_hours($seconds, $show_seconds=true) {
   return sprintf("%2dh %2dm", floor($seconds/3600), ($seconds/60)%60);
 }
 
-function c99mir_report($year, $month) {
-  global $C99MIR_REPORT_DATA_PATH;
-  $year = intval($year);
-  $month = intval($month);
+$C99MIR_FOURSQUARE_CATEGORIES = Null;
+function c99mir_shortcode( $atts ) {
+  global $C99MIR_REPORT_DATA_PATH, $C99MIR_FOURSQUARE_CATEGORIES;
+  if($C99MIR_FOURSQUARE_CATEGORIES == Null)
+    $C99MIR_FOURSQUARE_CATEGORIES = json_decode(file_get_contents(plugin_dir_path( __FILE__ ) . "foursquare-categories.json"));
+
+  $atts = shortcode_atts(
+    array(
+      'year' => '',
+      'month' => '',
+    ),
+    $atts,
+    'c99mir'
+  );
+
+  $year = intval($atts['year']);
+  $month = intval($atts['month']);
   $o = "";
   $current = json_decode(file_get_contents($C99MIR_REPORT_DATA_PATH . $year . "-" . $month . ".json"));
   $prev = json_decode(file_get_contents($C99MIR_REPORT_DATA_PATH . ($month == 1 ? $year - 1 : $year) . "-" . ($month == 1 ? 12 : $month - 1) . ".json"));
@@ -104,6 +117,62 @@ function c99mir_report($year, $month) {
     $o .= "<div class='c99mir_stat'><span class='fas fa-gamepad c99mir_stat_icon'></span>Distracting Time<br/><b>" . c99mir_seconds_to_hours($sum) . "</b><br/>" . c99mir_delta($sum/3600, c99mir_distracting_time($prev->rescuetime->activity, "value")/3600, " hours", true) . "from last month</div>";
   }
 
+  if(count($current->foursquare->checkin) > 0) {
+    $o .= "<p style='clear: both'/>";
+    $o .= "<h1>Foursquare</h1>";
+
+    $venues = [];
+    $categories = [];
+    $cities = [];
+    $states = [];
+    $countries = [];
+    foreach($current->foursquare->checkin as $checkin) {
+      $venues[$checkin->venue_id]++;
+      $categories[$checkin->category]++;
+      $cities[$checkin->city]++;
+      if($checkin->country == 'United States')
+        $states[$checkin->state]++;
+      $countries[$checkin->country]++;
+    }
+    arsort($categories);
+
+    $venues_prev = [];
+    $cities_prev = [];
+    $states_prev = [];
+    $countries_prev = [];
+    foreach($prev->foursquare->checkin as $checkin) {
+      $venues_prev[$checkin->venue_id]++;
+      $cities_prev[$checkin->city]++;
+      if($checkin->country == 'United States')
+        $states_prev[$checkin->state]++;
+      $countries_prev[$checkin->country]++;
+    }
+
+    $o .= "<div class='c99mir_stat'><span class='fas fa-map-marker-alt c99mir_stat_icon'></span>Places Visited<br/><b>" . number_format(count($venues)) . "</b><br/>" . c99mir_delta(count($venues), count($venues_prev)) . "from last month</div>";
+
+    if(count($cities) > 1 || count($cities_prev) > 1) {
+      $o .= "<div class='c99mir_stat'><span class='fas fa-city c99mir_stat_icon'></span>Cities Visited<br/><b>" . number_format(count($cities)) . "</b><br/>" . c99mir_delta(count($cities), count($cities_prev)) . "from last month</div>";
+    }
+
+    if(count($states) > 1 || count($states_prev) > 1) {
+      $o .= "<div class='c99mir_stat'><span class='fas fa-flag-usa c99mir_stat_icon'></span>States Visited<br/><b>" . number_format(count($states)) . "</b><br/>" . c99mir_delta(count($states), count($states_prev)) . "from last month</div>";
+    }
+
+    if(count($countries) > 1 || count($countries_prev) > 1) {
+      $o .= "<div class='c99mir_stat'><span class='fas fa-globe-americas c99mir_stat_icon'></span>Countries Visited<br/><b>" . number_format(count($countries)) . "</b><br/>" . c99mir_delta(count($countries), count($countries_prev)) . "from last month</div>";
+    }
+
+    $o .= "<p style='clear: both'/>";
+
+    if(count($categories) > 0) {
+      foreach($categories as $category => $v) {
+        $icon = $C99MIR_FOURSQUARE_CATEGORIES->{$category}->icon->prefix . "bg_32" . $C99MIR_FOURSQUARE_CATEGORIES->{$category}->icon->suffix;
+        $s = $v == 1 ? "" : "s";
+        $o .= "<div class='c99mir_foursquare_category'><img src='$icon'>$category<br/>$v visit$s</div>";
+      }
+    }
+  }
+
   if(count($current->instagram->post) > 0) {
     $o .= "<p style='clear: both'/>";
     $o .= "<h1>Instagram</h1>";
@@ -138,20 +207,11 @@ function c99mir_report($year, $month) {
     }
   }
 
+  if($o == "") {
+    $o = "Nothing happened this month, check back later.";
+  }
+
   return $o;
-}
-
-function c99mir_shortcode( $atts ) {
-  $atts = shortcode_atts(
-    array(
-      'year' => '',
-      'month' => '',
-    ),
-    $atts,
-    'c99mir'
-  );
-
-  return c99mir_report($atts['year'], $atts['month']);
 }
 
 function c99mir_create_journal( $year, $month ) {
