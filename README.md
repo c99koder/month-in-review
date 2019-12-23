@@ -18,7 +18,7 @@ $ python3 ./export-data.py > `date +%Y-%-m`.json
 
 * Activate the plugin in WordPress
 
-![Screenshot](https://raw.githubusercontent.com/c99koder/month-in-review/master/screenshots/month-in-review.png)
+![Screenshot](https://raw.githubusercontent.com/c99koder/month-in-review/master/month-in-review.png)
 
 # License
 
