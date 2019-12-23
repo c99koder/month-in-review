@@ -110,11 +110,52 @@ function c99mir_shortcode( $atts ) {
     $o .= "<p style='clear: both'/>";
     $o .= "<h1>Productivity</h1>";
 
-    $sum = c99mir_productive_time($current->rescuetime);
-    $o .= "<div class='c99mir_stat'><span class='fas fa-laptop-code c99mir_stat_icon'></span>Productive Time<br/><b>" . c99mir_seconds_to_hours($sum) . "</b><br/>" . c99mir_delta($sum/3600, c99mir_productive_time($prev->rescuetime, "value")/3600, " hours") . "from last month</div>";
+    $productive = [];
+    $distracting = [];
+    foreach($current->rescuetime as $activity) {
+      if($activity->productivity > 0)
+        $productive[$activity->category] += $activity->duration;
+      else if($activity->productivity < 0)
+        $distracting[$activity->category] += $activity->duration;
+    }
+    arsort($productive);
+    arsort($distracting);
 
-    $sum = c99mir_distracting_time($current->rescuetime);
-    $o .= "<div class='c99mir_stat'><span class='fas fa-gamepad c99mir_stat_icon'></span>Distracting Time<br/><b>" . c99mir_seconds_to_hours($sum) . "</b><br/>" . c99mir_delta($sum/3600, c99mir_distracting_time($prev->rescuetime, "value")/3600, " hours", true) . "from last month</div>";
+    if(count($productive) > 0) {
+      $sum = c99mir_productive_time($current->rescuetime);
+      $time = c99mir_seconds_to_hours($sum);
+      $o .= "<div class='c99mir_rescuetime_activity'><span class='fas fa-laptop-code c99mir_stat_icon'></span>";
+      $o .= "<table>";
+      $o .= "<tr><td class='c99mir_rescuetime_activity_category' style='border-bottom: none;'><b>Productive Time</b>";
+      $o .= "<br/>" . c99mir_delta($sum/3600, c99mir_productive_time($prev->rescuetime, "value")/3600, " hours") . "from last month";
+      $o .= "</td><td class='c99mir_rescuetime_activity_time' style='border-bottom: none;'><b>$time</b></td></tr>";
+      $i = 0;
+      foreach($productive as $category => $seconds) {
+        $time = c99mir_seconds_to_hours($seconds);
+        $o .= "<tr><td class='c99mir_rescuetime_activity_category'><div>$category</div></td><td class='c99mir_rescuetime_activity_time'><div>$time</div></td></tr>";
+        if(++$i >= 5)
+          break;
+      }
+      $o .= "</table></div>";
+    }
+
+    if(count($distracting) > 0) {
+      $sum = c99mir_distracting_time($current->rescuetime);
+      $time = c99mir_seconds_to_hours($sum);
+      $o .= "<div class='c99mir_rescuetime_activity'><span class='fas fa-gamepad c99mir_stat_icon'></span>";
+      $o .= "<table>";
+      $o .= "<tr><td class='c99mir_rescuetime_activity_category' style='border-bottom: none;'><b>Distracting Time</b>";
+      $o .= "<br/>" . c99mir_delta($sum/3600, c99mir_distracting_time($prev->rescuetime, "value")/3600, " hours", true) . "from last month";
+      $o .= "</td><td class='c99mir_rescuetime_activity_time' style='border-bottom: none;'><b>$time</b></td></tr>";
+      $i = 0;
+      foreach($distracting as $category => $seconds) {
+        $time = c99mir_seconds_to_hours($seconds);
+        $o .= "<tr><td class='c99mir_rescuetime_activity_category'><div>$category</div></td><td class='c99mir_rescuetime_activity_time'><div>$time</div></td></tr>";
+        if(++$i >= 5)
+          break;
+      }
+      $o .= "</table></div>";
+    }
   }
 
   if(count($current->foursquare->checkin) > 0) {
@@ -166,7 +207,7 @@ function c99mir_shortcode( $atts ) {
 
     if(count($categories) > 0) {
       foreach($categories as $category => $v) {
-        $icon = $C99MIR_FOURSQUARE_CATEGORIES->{$category}->icon->prefix . "bg_32" . $C99MIR_FOURSQUARE_CATEGORIES->{$category}->icon->suffix;
+        $icon = $C99MIR_FOURSQUARE_CATEGORIES->{$category}->icon->prefix . "32" . $C99MIR_FOURSQUARE_CATEGORIES->{$category}->icon->suffix;
         $s = $v == 1 ? "" : "s";
         $o .= "<div class='c99mir_foursquare_category'><img src='$icon'>$category<br/>$v visit$s</div>";
       }
