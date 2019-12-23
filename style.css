@@ -40,13 +40,21 @@
   margin-right: 6px;
   margin-bottom: 6px;
   width: 240px;
+  max-width: 240px;
   line-height: 1.25em;
+  overflow: hidden;
 }
 
 .c99mir_achievement img {
   float: left;
   margin-right: 6px;
   height: 2.5em !important;
+}
+
+.c99mir_achievement div {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .c99mir_foursquare_table {
@@ -87,6 +95,9 @@
   max-height: 1.2em;
   line-height: 1.2em;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
 }
 
 .c99mir_rescuetime_activity_category {

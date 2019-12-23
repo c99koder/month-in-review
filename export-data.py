@@ -78,6 +78,17 @@ def generate_report(month, year):
 	client.switch_database('rescuetime')
 	report['rescuetime'] = list(client.query("SELECT \"category\",\"duration\",\"productivity\" FROM %s WHERE %s" % ('activity', timeFilter)).get_points())
 
+	client.switch_database('todoist')
+	todoist_completed = list(client.query("SELECT count(content) AS count FROM %s WHERE %s" % ('completed', timeFilter)).get_points())
+	if len(todoist_completed) > 0:
+		report['todoist_completed_count'] = todoist_completed[0]['count']
+	else:
+		report['todoist_completed_count'] = 0
+
+	client.switch_database('github')
+	report['github'] = {}
+	insert_data(report['github'], 'commits', timeFilter)
+
 	return report
 
 try:
