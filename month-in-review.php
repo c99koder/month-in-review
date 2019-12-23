@@ -276,7 +276,7 @@ function c99mir_create_journal( $year, $month ) {
   wp_insert_post(
     array('post_type' => 'c99mir_post',
           'post_date' => date("Y-m-t", strtotime($date . '-01')) . ' 23:59:59',
-          'post_title' => date("F", strtotime($date . '-01')) . ' ' . strval($year) . ' In Review',
+          'post_title' => date("F Y", strtotime($date . '-01')),
           'post_name' => $date,
           'post_author' => '4',
           'post_status' => 'publish',
@@ -293,13 +293,13 @@ function c99mir_init() {
   register_post_type('c99mir_post',
                      array(
                          'labels'      => array(
-                             'name'          => __('Monthly Reviews'),
+                             'name'          => __('Year In Review'),
                              'singular_name' => __('Monthly Review'),
                          ),
                          'public'      => true,
                          'has_archive' => true,
                          'taxonomies'  => array( 'category' ),
-                         'rewrite'     => array( 'slug' => 'month-in-review' ),
+                         'rewrite'     => array( 'slug' => 'year-in-review' ),
                          'capability_type' => 'page'
                      )
   );
@@ -322,9 +322,9 @@ function c99mir_deactivation() {
 register_deactivation_hook( __FILE__, 'c99mir_deactivation' );
 
 function c99mir_add_post_type($query) {
-    if(empty($query->query['post_type']) or $query->query['post_type'] === 'post') {
-        $query->set('post_type', array('post', 'c99mir_post'));
-    }
+  if (!is_admin() && $query->is_main_query() && ($query->is_archive || is_home()) ) {
+    $query->set('post_type', array('post', 'c99mir_post'));
+  }
 }
 add_action('pre_get_posts', 'c99mir_add_post_type');
 ?>
