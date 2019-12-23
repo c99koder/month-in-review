@@ -106,15 +106,15 @@ function c99mir_shortcode( $atts ) {
     $o .= "<div class='c99mir_stat'><span class='fas fa-mountain c99mir_stat_icon'></span>Floors Climbed<br/><b>" . number_format($sum) . "</b><br/>" . c99mir_delta($sum, c99mir_sum($prev->fitbit->floors, "value")) . "from last month</div>";
   }
 
-  if(count($current->rescuetime->activity) > 0) {
+  if(count($current->rescuetime) > 0) {
     $o .= "<p style='clear: both'/>";
     $o .= "<h1>Productivity</h1>";
 
-    $sum = c99mir_productive_time($current->rescuetime->activity);
-    $o .= "<div class='c99mir_stat'><span class='fas fa-laptop-code c99mir_stat_icon'></span>Productive Time<br/><b>" . c99mir_seconds_to_hours($sum) . "</b><br/>" . c99mir_delta($sum/3600, c99mir_productive_time($prev->rescuetime->activity, "value")/3600, " hours") . "from last month</div>";
+    $sum = c99mir_productive_time($current->rescuetime);
+    $o .= "<div class='c99mir_stat'><span class='fas fa-laptop-code c99mir_stat_icon'></span>Productive Time<br/><b>" . c99mir_seconds_to_hours($sum) . "</b><br/>" . c99mir_delta($sum/3600, c99mir_productive_time($prev->rescuetime, "value")/3600, " hours") . "from last month</div>";
 
-    $sum = c99mir_distracting_time($current->rescuetime->activity);
-    $o .= "<div class='c99mir_stat'><span class='fas fa-gamepad c99mir_stat_icon'></span>Distracting Time<br/><b>" . c99mir_seconds_to_hours($sum) . "</b><br/>" . c99mir_delta($sum/3600, c99mir_distracting_time($prev->rescuetime->activity, "value")/3600, " hours", true) . "from last month</div>";
+    $sum = c99mir_distracting_time($current->rescuetime);
+    $o .= "<div class='c99mir_stat'><span class='fas fa-gamepad c99mir_stat_icon'></span>Distracting Time<br/><b>" . c99mir_seconds_to_hours($sum) . "</b><br/>" . c99mir_delta($sum/3600, c99mir_distracting_time($prev->rescuetime, "value")/3600, " hours", true) . "from last month</div>";
   }
 
   if(count($current->foursquare->checkin) > 0) {
