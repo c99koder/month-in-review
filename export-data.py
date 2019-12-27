@@ -89,6 +89,10 @@ def generate_report(month, year):
 	report['github'] = {}
 	insert_data(report['github'], 'commits', timeFilter)
 
+	client.switch_database('trakt')
+	report['trakt'] = {}
+	insert_data(report['trakt'], 'watch', timeFilter)
+
 	return report
 
 try:

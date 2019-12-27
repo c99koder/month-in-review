@@ -277,6 +277,47 @@ function c99mir_shortcode( $atts ) {
     }
   }
 
+  if(count($current->trakt->watch) > 0) {
+    $shows = [];
+    $movies = [];
+    $media = [];
+
+    foreach($current->trakt->watch as $watch) {
+      if($watch->type == "episode") {
+        $shows[$watch->show_id]++;
+        $media[$watch->show_id] = $watch;
+      } else if($watch->type == "movie") {
+        $movies[$watch->id]++;
+        $media[$watch->id] = $watch;
+      }
+    }
+
+    if(count($shows) > 0) {
+      $o .= "<p style='clear: both'/>";
+      $o .= "<h1>Most Watched TV Shows</h1>";
+
+      arsort($shows);
+      $i = 1;
+      foreach($shows as $show_id => $count) {
+        $show = $media[$show_id];
+        $o .= "<div class='c99mir_trakt'><a href='$show->url'><img src='$show->poster' alt='$show->title'/></a></div>";
+        if($i++ >= 18)
+          break;
+      }
+    }
+
+    if(count($movies) > 0) {
+      $o .= "<p style='clear: both'/>";
+      $o .= "<h1>Recent Movies</h1>";
+
+      arsort($movies);
+      foreach($movies as $movie_id => $count) {
+        $movie = $media[$movie_id];
+        $o .= "<div class='c99mir_trakt'><a href='$movie->url'><img src='$movie->poster' alt='$movie->title'/></a></div>";
+      }
+    }
+  }
+
   if($o == "") {
     $o = "Nothing happened this month, check back later.";
   }

@@ -107,3 +107,11 @@
 .c99mir_rescuetime_activity_time {
   text-align: right;
 }
+
+.c99mir_trakt {
+  float: left;
+}
+
+.c99mir_trakt img {
+  height: 200px;
+}
