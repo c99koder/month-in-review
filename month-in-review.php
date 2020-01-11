@@ -392,7 +392,7 @@ function c99mir_deactivation() {
 register_deactivation_hook( __FILE__, 'c99mir_deactivation' );
 
 function c99mir_add_post_type($query) {
-  if(!is_admin() && $query->is_main_query() && $query->query['post_type'] === 'post') {
+  if(!is_admin() && $query->is_main_query() && !$query->is_page) {
       $query->set('post_type', array('post', 'c99mir_post'));
   }
 }
