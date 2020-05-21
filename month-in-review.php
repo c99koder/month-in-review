@@ -300,7 +300,7 @@ function c99mir_shortcode( $atts ) {
       $i = 1;
       foreach($shows as $show_id => $count) {
         $show = $media[$show_id];
-        $o .= "<div class='c99mir_trakt'><a href='$show->url'><img src='$show->poster' alt='$show->title'/></a></div>";
+        $o .= "<div class='c99mir_trakt'><a href='$show->url'><img src='$show->poster' alt='$show->show'/></a></div>";
         if($i++ >= 18)
           break;
       }
