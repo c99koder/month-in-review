@@ -113,22 +113,28 @@ function c99mir_shortcode( $atts ) {
     $o .= "<h1>Fitness</h1>";
 
     $avg = c99mir_mean($current->fitbit->restingHeartRate, "value");
-    $o .= "<div class='c99mir_stat'><span class='fas fa-heartbeat c99mir_stat_icon'></span>Avg. Resting Heart Rate<br/><b>" . number_format($avg) . " bpm</b><br/>" . c99mir_delta($avg, c99mir_mean($prev->fitbit->restingHeartRate, "value"), " bpm", true) . "from last month</div>";
+    if($avg > 0)
+      $o .= "<div class='c99mir_stat'><span class='fas fa-heartbeat c99mir_stat_icon'></span>Avg. Resting Heart Rate<br/><b>" . number_format($avg) . " bpm</b><br/>" . c99mir_delta($avg, c99mir_mean($prev->fitbit->restingHeartRate, "value"), " bpm", true) . "from last month</div>";
 
     $avg = c99mir_mean($current->fitbit->steps, "value");
-    $o .= "<div class='c99mir_stat'><span class='fas fa-shoe-prints c99mir_stat_icon'></span>Avg. Steps Per Day<br/><b>" . number_format($avg) . "</b><br/>" . c99mir_delta($avg, c99mir_mean($prev->fitbit->steps, "value")) . "from last month</div>";
+    if($avg > 0)
+      $o .= "<div class='c99mir_stat'><span class='fas fa-shoe-prints c99mir_stat_icon'></span>Avg. Steps Per Day<br/><b>" . number_format($avg) . "</b><br/>" . c99mir_delta($avg, c99mir_mean($prev->fitbit->steps, "value")) . "from last month</div>";
 
     $avg = c99mir_mean($current->fitbit->weight, "value");
-    $o .= "<div class='c99mir_stat'><span class='fas fa-weight c99mir_stat_icon'></span>Avg. weight<br/><b>" . number_format($avg) . " lbs</b><br/>" . c99mir_delta($avg, c99mir_mean($prev->fitbit->weight, "value"), " lbs") . "from last month</div>";
+    if($avg > 0)
+      $o .= "<div class='c99mir_stat'><span class='fas fa-weight c99mir_stat_icon'></span>Avg. weight<br/><b>" . number_format($avg) . " lbs</b><br/>" . c99mir_delta($avg, c99mir_mean($prev->fitbit->weight, "value"), " lbs") . "from last month</div>";
 
     $avg = c99mir_mean($current->fitbit->sleep, "minutes_asleep");
-    $o .= "<div class='c99mir_stat'><span class='fas fa-bed c99mir_stat_icon'></span>Avg. Time Asleep<br/><b>" . c99mir_seconds_to_hours($avg*60,false) . "</b><br/>" . c99mir_delta($avg, c99mir_mean($prev->fitbit->sleep, "minutes_asleep"), " min") . "from last month</div>";
+    if($avg > 0)
+      $o .= "<div class='c99mir_stat'><span class='fas fa-bed c99mir_stat_icon'></span>Avg. Time Asleep<br/><b>" . c99mir_seconds_to_hours($avg*60,false) . "</b><br/>" . c99mir_delta($avg, c99mir_mean($prev->fitbit->sleep, "minutes_asleep"), " min") . "from last month</div>";
 
     $sum = c99mir_sum($current->fitbit->distance, "value");
-    $o .= "<div class='c99mir_stat'><span class='fas fa-walking c99mir_stat_icon'></span>Distance Traveled<br/><b>" . number_format($sum) . " miles</b><br/>" . c99mir_delta($sum, c99mir_sum($prev->fitbit->distance, "value"), " mi") . "from last month</div>";
+    if($sum > 0)
+      $o .= "<div class='c99mir_stat'><span class='fas fa-walking c99mir_stat_icon'></span>Distance Traveled<br/><b>" . number_format($sum) . " miles</b><br/>" . c99mir_delta($sum, c99mir_sum($prev->fitbit->distance, "value"), " mi") . "from last month</div>";
 
     $sum = c99mir_sum($current->fitbit->floors, "value");
-    $o .= "<div class='c99mir_stat'><span class='fas fa-mountain c99mir_stat_icon'></span>Floors Climbed<br/><b>" . number_format($sum) . "</b><br/>" . c99mir_delta($sum, c99mir_sum($prev->fitbit->floors, "value")) . "from last month</div>";
+    if($sum > 0)
+      $o .= "<div class='c99mir_stat'><span class='fas fa-mountain c99mir_stat_icon'></span>Floors Climbed<br/><b>" . number_format($sum) . "</b><br/>" . c99mir_delta($sum, c99mir_sum($prev->fitbit->floors, "value")) . "from last month</div>";
   }
 
   if(count($current->rescuetime) > 0 || $current->todoist_completed_count > 0 || count($current->github->commits) > 0) {
