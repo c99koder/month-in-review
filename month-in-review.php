@@ -3,15 +3,40 @@
  * Plugin Name: Month in Review
  * Plugin URI: https://github.com/c99koder/month-in-review
  * Description: Shortcode and custom page type that generates a summary of the previous week using data exported from InfluxDB
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Sam Steele
  * Author URI: https://www.c99.org/
  * License: Apache-2.0
  * License URI: https://www.apache.org/licenses/LICENSE-2.0.txt
  */
 
-$C99MIR_POST_CATEGORY = 0;
-$C99MIR_REPORT_DATA_PATH = "";
+$C99MIR_POST_CATEGORY = 298;
+$C99MIR_REPORT_DATA_PATH = "/home/c99org/report-data/";
+$C99MIR_CACHE_IMAGES = 1;
+
+if (!function_exists('download_url')) {
+  require_once ABSPATH . 'wp-admin/includes/file.php';
+}
+
+function c99mir_cache_url($url) {
+  if($C99MIR_CACHE_IMAGES == 1) {
+    if(!file_exists(WP_CONTENT_DIR . "/cache/month-in-review/"))
+      mkdir(WP_CONTENT_DIR . "/cache/month-in-review/");
+
+    $filename = md5($url);
+    if(!file_exists($filename)) {
+      print("Downloading " . $url . " to " . $filename);
+      $tmp = download_url($url);
+      print("Result: " + tmp);
+      if(is_wp_error($tmp) || !rename($tmp, WP_CONTENT_DIR . "/cache/month-in-review/" . $filename))
+        return $url;
+    }
+
+    return WP_CONTENT_URL . "/cache/month-in-review/" . $filename;
+  } else {
+    return $url;
+  }
+}
 
 function c99mir_sum($data, $property) {
   $total = 0;
@@ -257,26 +282,6 @@ function c99mir_shortcode( $atts ) {
     $o .= "<div class='c99mir_stat'><span class='fas fa-comments c99mir_stat_icon'></span>Comments<br/><b>" . number_format($sum) . "</b><br/>" . c99mir_delta($sum, c99mir_sum($prev->instagram->post, "comments")) . "from last month</div>";
   }
 
-  if(count($current->gaming->time) > 0) {
-    $o .= "<p style='clear: both'/>";
-    $o .= "<h1>Recent Games</h1>";
-    $found = [];
-    foreach($current->gaming->time as $game) {
-      if($found[$game->application_id] != 1) {
-        $o .= "<div class='c99mir_recent_game'><a href='$game->url'><img src='$game->image'/></a></div>";
-        $found[$game->application_id] = 1;
-      }
-    }
-  }
-
-  if(count($current->gaming->achievement) > 0) {
-    $o .= "<p style='clear: both'/>";
-    $o .= "<h1>Achievements</h1>";
-    foreach($current->gaming->achievement as $achievement) {
-        $o .= "<div class='c99mir_achievement'><img src='$achievement->icon'/><div>$achievement->title</div><div><b>$achievement->name</b></div></div>";
-    }
-  }
-
   if(count($current->trakt->watch) > 0) {
     $shows = [];
     $movies = [];
@@ -300,7 +305,8 @@ function c99mir_shortcode( $atts ) {
       $i = 1;
       foreach($shows as $show_id => $count) {
         $show = $media[$show_id];
-        $o .= "<div class='c99mir_trakt'><a href='$show->url'><img src='$show->poster' alt='$show->show'/></a></div>";
+        $poster = c99mir_cache_url($show->poster);
+        $o .= "<div class='c99mir_trakt'><a href='$show->url'><img src='$poster' alt='$show->show'/></a></div>";
         if($i++ >= 18)
           break;
       }
@@ -313,11 +319,34 @@ function c99mir_shortcode( $atts ) {
       arsort($movies);
       foreach($movies as $movie_id => $count) {
         $movie = $media[$movie_id];
-        $o .= "<div class='c99mir_trakt'><a href='$movie->url'><img src='$movie->poster' alt='$movie->title'/></a></div>";
+        $poster = c99mir_cache_url($movie->poster);
+        $o .= "<div class='c99mir_trakt'><a href='$movie->url'><img src='$poster' alt='$movie->title'/></a></div>";
       }
     }
   }
 
+  if(count($current->gaming->time) > 0) {
+    $o .= "<p style='clear: both'/>";
+    $o .= "<h1>Recent Games</h1>";
+    $found = [];
+    foreach($current->gaming->time as $game) {
+      if($found[$game->application_id] != 1) {
+        $image = c99mir_cache_url($game->image);
+        $o .= "<div class='c99mir_recent_game'><a href='$game->url'><img src='$image'/></a></div>";
+        $found[$game->application_id] = 1;
+      }
+    }
+  }
+
+  if(count($current->gaming->achievement) > 0) {
+    $o .= "<p style='clear: both'/>";
+    $o .= "<h1>Achievements</h1>";
+    foreach($current->gaming->achievement as $achievement) {
+      $icon = c99mir_cache_url($achievement->icon);
+      $o .= "<div class='c99mir_achievement'><img src='$achievement->icon'/><div>$achievement->title</div><div><b>$achievement->name</b></div></div>";
+    }
+  }
+  
   if($o == "") {
     $o = "Nothing happened this month, check back later.";
   }
