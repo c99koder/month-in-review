@@ -72,7 +72,7 @@ def generate_report(month, year):
 
 	client.switch_database('gaming')
 	report['gaming'] = {}
-	insert_data(report['gaming'], 'time', timeFilter + " AND platform != 'Google Play'")
+	insert_data(report['gaming'], 'time', timeFilter + " AND platform != 'Google Play' AND image != ''")
 	insert_data(report['gaming'], 'achievement', timeFilter + " AND platform != 'Google Play'")
 
 	client.switch_database('rescuetime')
