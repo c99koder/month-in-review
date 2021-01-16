@@ -19,15 +19,15 @@ if (!function_exists('download_url')) {
 }
 
 function c99mir_cache_url($url) {
+  global $C99MIR_CACHE_IMAGES;
+
   if($C99MIR_CACHE_IMAGES == 1) {
     if(!file_exists(WP_CONTENT_DIR . "/cache/month-in-review/"))
       mkdir(WP_CONTENT_DIR . "/cache/month-in-review/");
 
     $filename = md5($url);
-    if(!file_exists($filename)) {
-      print("Downloading " . $url . " to " . $filename);
+    if(!file_exists(WP_CONTENT_DIR . "/cache/month-in-review/" . $filename)) {
       $tmp = download_url($url);
-      print("Result: " + tmp);
       if(is_wp_error($tmp) || !rename($tmp, WP_CONTENT_DIR . "/cache/month-in-review/" . $filename))
         return $url;
     }
@@ -349,7 +349,7 @@ function c99mir_shortcode( $atts ) {
     $o .= "<h1>Achievements</h1>";
     foreach($current->gaming->achievement as $achievement) {
       $icon = c99mir_cache_url($achievement->icon);
-      $o .= "<div class='c99mir_achievement'><img src='$achievement->icon'/><div>$achievement->title</div><div><b>$achievement->name</b></div></div>";
+      $o .= "<div class='c99mir_achievement'><img src='$icon'/><div>$achievement->title</div><div><b>$achievement->name</b></div></div>";
     }
   }
   
